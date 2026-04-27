@@ -7,6 +7,7 @@ import vueDevTools from "vite-plugin-vue-devtools";
 
 // https://vite.dev/config/
 export default defineConfig({
+  base: process.env.NODE_ENV === "production" ? "/pinia-test-0421/" : "/",
   plugins: [vue(), vueJsx(), vueDevTools()],
   resolve: {
     alias: {
