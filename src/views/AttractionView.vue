@@ -42,7 +42,7 @@ onMounted(() => {
 
 const formatImageUrl = (url) => {
   if (!url) return "https://via.placeholder.com/400x300";
-  return url.startsWith("./") ? url.substring(1) : url;
+  return url;
 };
 </script>
 
