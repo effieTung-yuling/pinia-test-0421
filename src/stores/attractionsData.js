@@ -1,11 +1,11 @@
 import { defineStore } from "pinia";
 import { ref } from "vue";
 
-export const useDataStore = defineStore("data", () => {
+export const useAttractionsStore = defineStore("attractions", () => {
   const items = ref([]);
   const isLoading = ref(false); // 新增這行
 
-  async function fetchProducts() {
+  async function fetchAttractions() {
     isLoading.value = true; // 開始抓取時設為 true
     try {
       const response = await fetch(
@@ -21,5 +21,5 @@ export const useDataStore = defineStore("data", () => {
     }
   }
 
-  return { items, isLoading, fetchProducts };
+  return { items, isLoading, fetchAttractions };
 });

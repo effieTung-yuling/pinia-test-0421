@@ -33,11 +33,11 @@
 
 <script setup>
 import { onMounted } from "vue";
-import { useDataStore } from "@/stores/data";
-const dataStore = useDataStore();
+import { useAttractionsStore } from "@/stores/attractionsData";
+const dataStore = useAttractionsStore();
 
 onMounted(() => {
-  dataStore.fetchProducts();
+  dataStore.fetchAttractions();
 });
 
 const formatImageUrl = (url) => {

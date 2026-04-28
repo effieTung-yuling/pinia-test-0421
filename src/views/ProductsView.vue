@@ -9,18 +9,35 @@
         </div>
       </div>
 
-      <template v-else> </template>
+      <template v-else>        
+         <div
+          v-for="item in dataStore.items"
+          :key="item.id"
+          class="attraction-card"
+        >
+          <div class="image-wrapper">
+            <img :src="formatImageUrl(item.imageUrl)" :alt="item.title" />
+          </div>
+
+          <div class="content-wrapper">
+            <span class="category-badge">{{ item.category }}</span>
+            <h2 class="title">{{ item.title }}</h2>
+            <p class="description">{{ item.description }}</p>
+            <button class="more-btn">查看更多</button>
+          </div>
+        </div></template>
     </div>
   </div>
 </template>
 
 <script setup>
 import { onMounted } from "vue";
-import { useDataStore } from "@/stores/data";
-const dataStore = useDataStore();
+import { useProductsStore } from "@/stores/productsData";
+const dataStore = useProductsStore();
 
 onMounted(() => {
   dataStore.fetchProducts();
+  console.log(dataStore.items);
 });
 
 const formatImageUrl = (url) => {
