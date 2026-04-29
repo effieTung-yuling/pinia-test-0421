@@ -9,23 +9,48 @@
         </div>
       </div>
 
-      <template v-else>        
-         <div
+      <template v-else>
+        <div
           v-for="item in dataStore.items"
           :key="item.id"
           class="attraction-card"
         >
+          <!-- 圖片 -->
           <div class="image-wrapper">
+            <span class="tag">{{ item.category }}</span>
             <img :src="formatImageUrl(item.mainImageUrl)" :alt="item.title" />
           </div>
 
+          <!-- 內容 -->
           <div class="content-wrapper">
-            <span class="category-badge">{{ item.category }}</span>
             <h2 class="title">{{ item.title }}</h2>
-            <p class="description">{{ item.description }}</p>
-            <button class="more-btn">查看更多</button>
+
+            <p class="description">
+              {{ item.description }}
+            </p>
+
+            <!-- ⭐ 預約資訊 -->
+            <div class="date-info">
+              <p v-if="currentDate <= item.endDate">
+                預約：{{ item.startDate }} ~ {{ item.endDate }}
+              </p>
+              <p v-else class="text-danger">預約時間已截止</p>
+
+              <p v-if="currentDate <= item.endDate">
+                出遊：{{ item.goStartDate }} ~ {{ item.goEndDate }}
+              </p>
+              <p v-else class="text-danger">已出遊完成</p>
+            </div>
+
+            <!-- 按鈕 -->
+            <button v-if="currentDate <= item.endDate" class="more-btn">
+              立即預約
+            </button>
+
+            <button v-else class="more-btn disabled" disabled>已截止</button>
           </div>
-        </div></template>
+        </div></template
+      >
     </div>
   </div>
 </template>
@@ -174,5 +199,35 @@ const formatImageUrl = (url) => {
   100% {
     transform: rotate(360deg);
   }
+}
+
+.tag {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  background: #3498db;
+  color: white;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+}
+
+.image-wrapper {
+  position: relative;
+}
+
+.date-info {
+  font-size: 0.9rem;
+  margin-bottom: 12px;
+  color: #555;
+}
+
+.text-danger {
+  color: #e74c3c;
+}
+
+.more-btn.disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
 }
 </style>
