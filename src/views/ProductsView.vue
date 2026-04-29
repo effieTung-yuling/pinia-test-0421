@@ -16,7 +16,7 @@
           class="attraction-card"
         >
           <div class="image-wrapper">
-            <img :src="formatImageUrl(item.main_image_url)" :alt="item.title" />
+            <img :src="formatImageUrl(item.mainImageUrl)" :alt="item.title" />
           </div>
 
           <div class="content-wrapper">
