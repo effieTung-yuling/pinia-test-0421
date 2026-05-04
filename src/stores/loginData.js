@@ -1,12 +1,12 @@
 import { defineStore } from "pinia";
-import { ref } from "vue";
+import { ref, computed } from "vue";
 
 export const useLoginStore = defineStore("auth", () => {
   const email = ref("");
   const password = ref("");
   const userData = ref(null); // 改為 null，方便判斷是否已登入
   const isLoading = ref(false);
-
+  const isLoggedIn = computed(() => !!userData.value);
   // 增加參數接收前端傳進來的帳密
   async function login(payload) {
     isLoading.value = true;
@@ -33,5 +33,11 @@ export const useLoginStore = defineStore("auth", () => {
     }
   }
 
-  return { email, password, userData, isLoading, login }; // 記得 return
+  function logout() {
+    userData.value = null;
+    email.value = "";
+    password.value = "";
+  }
+
+  return { email, password, userData, isLoading, isLoggedIn, login, logout };
 });

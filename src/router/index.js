@@ -1,4 +1,5 @@
 import { createRouter, createWebHashHistory } from "vue-router";
+import { useLoginStore } from "@/stores/loginData";
 import HomeView from "../views/HomeView.vue";
 import ProductsView from "../views/ProductsView.vue";
 import AttractionView from "../views/AttractionView.vue";
@@ -28,6 +29,7 @@ const router = createRouter({
       path: "/cart",
       name: "cart",
       component: CartView,
+      meta: { requiresAuth: true },
     },
     {
       path: "/login",
@@ -40,6 +42,21 @@ const router = createRouter({
       redirect: "/",
     },
   ],
+});
+
+router.beforeEach((to) => {
+  const authStore = useLoginStore();
+
+  if (to.meta.requiresAuth && !authStore.isLoggedIn) {
+    return {
+      path: "/login",
+      query: { redirect: to.fullPath },
+    };
+  }
+
+  if (to.path === "/login" && authStore.isLoggedIn) {
+    return "/";
+  }
 });
 
 export default router;

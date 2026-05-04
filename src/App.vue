@@ -1,15 +1,14 @@
-<script setup lang="ts">
-import { ref } from "vue";
-import { RouterLink, RouterView } from "vue-router";
+<script setup> 
+import { computed } from "vue"; 
+import { RouterLink, RouterView, useRouter } from "vue-router"; 
+import { storeToRefs } from "pinia"; 
+import { useLoginStore } from "@/stores/loginData"; 
 
-// 模擬登入狀態與購物車數量（實務上建議從 Pinia Store 取得）
-const isAuthenticated = ref(false);
-const cartCount = ref(0);
-
-const logout = () => {
-  isAuthenticated.value = false;
-  // 導向首頁或執行登出邏輯
-};
+const router = useRouter(); 
+const authStore = useLoginStore(); 
+const { isLoggedIn } = storeToRefs(authStore); // 先用 0 或你自己的購物車 store 計算 
+const cartCount = computed(() => 0); 
+const logout = () => { authStore.logout(); router.push("/")}; 
 </script>
 
 <template>
@@ -22,18 +21,18 @@ const logout = () => {
 
         <RouterLink to="/products">商品列表</RouterLink>
 
-        <RouterLink to="/cart" class="cart-link">
-          購物車 <span v-if="cartCount > 0" class="badge">{{ cartCount }}</span>
-        </RouterLink>
+     <RouterLink v-if="isLoggedIn" to="/cart" class="cart-link">
+       購物車 <span v-if="cartCount > 0" class="badge">{{ cartCount }}</span>
+     </RouterLink>
 
-        <RouterLink v-if="!isAuthenticated" to="/login">登入</RouterLink>
-        <a v-else href="#" @click.prevent="logout">登出</a>
-      </nav>
-    </header>
+     <RouterLink v-if="!isLoggedIn" to="/login">登入</RouterLink>
+     <a v-else href="#" @click.prevent="logout">登出</a>
+   </nav>
+ </header>
 
-    <main class="content">
-      <RouterView />
-    </main>
+ <main class="content">
+   <RouterView />
+ </main>
     <div class="footer" style="text-align: center; margin-top: 16px">
       <p>
         本網站僅供個人作品使用，不提供商業用途<br />

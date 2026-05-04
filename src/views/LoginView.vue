@@ -61,7 +61,8 @@ const handleLogin = async () => {
     });
 
     // 2. 登入成功後，使用 router.push 跳轉至首頁
-    router.push("/"); 
+    const redirectPath = router.currentRoute.value.query.redirect || "/";
+    router.push(redirectPath);
   } catch (err) {
     alert("登入失敗：" + err.message);
   } finally {
