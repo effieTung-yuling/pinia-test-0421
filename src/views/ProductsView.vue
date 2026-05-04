@@ -62,7 +62,6 @@ const dataStore = useProductsStore();
 
 onMounted(() => {
   dataStore.fetchProducts();
-  console.log(dataStore.items);
 });
 
 const formatImageUrl = (url) => {
