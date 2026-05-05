@@ -1,33 +1,28 @@
 import { defineStore } from "pinia";
 import { ref, computed } from "vue";
+import { loginAPI } from "@/api/auth";
 
 export const useLoginStore = defineStore("auth", () => {
-  const email = ref("");
-  const password = ref("");
-  const userData = ref(null); // 改為 null，方便判斷是否已登入
+  const userData = ref(null);
   const isLoading = ref(false);
   const isLoggedIn = computed(() => !!userData.value);
-  // 增加參數接收前端傳進來的帳密
+
   async function login(payload) {
     isLoading.value = true;
     try {
-      const response = await fetch(
-        "https://southerntravel.onrender.com/api/Members/login",
-        {
-          method: "POST", // 登入通常使用 POST
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload), // 將 email, password 送出
-        },
-      );
+      // 直接調用 API 函式，Axios 失敗會自動進入 catch
+      const response = await loginAPI(payload);
 
-      if (!response.ok) throw new Error("登入失敗，請檢查帳號密碼");
+      // 注意：Axios 回傳的資料通常在 response.data
+      userData.value = response.data;
 
-      const data = await response.json();
-      userData.value = data; // 儲存回傳的使用者資料
-      return data; // 回傳給組件處理後續跳轉
+      // 可以在這裡存 Token 到 localStorage
+      // localStorage.setItem('token', response.data.token);
+
+      return response.data;
     } catch (error) {
       console.error("登入發生錯誤:", error);
-      throw error; // 拋出錯誤讓 UI 也能顯示錯誤訊息
+      throw error;
     } finally {
       isLoading.value = false;
     }
@@ -35,9 +30,8 @@ export const useLoginStore = defineStore("auth", () => {
 
   function logout() {
     userData.value = null;
-    email.value = "";
-    password.value = "";
+    // localStorage.removeItem('token');
   }
 
-  return { email, password, userData, isLoading, isLoggedIn, login, logout };
+  return { userData, isLoading, isLoggedIn, login, logout };
 });
