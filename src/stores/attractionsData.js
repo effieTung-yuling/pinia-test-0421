@@ -1,6 +1,5 @@
 import { defineStore } from "pinia";
 import { ref } from "vue";
-import { fetchAttractions as fetchAttractionsAPI } from "@/api/attractions";
 
 export const useAttractionsStore = defineStore("attractions", () => {
   const items = ref([]);
@@ -9,8 +8,12 @@ export const useAttractionsStore = defineStore("attractions", () => {
   async function fetchAttractions() {
     isLoading.value = true; // 開始抓取時設為 true
     try {
-      const response = await fetchAttractionsAPI();
-      items.value = response.data;
+      const response = await fetch(
+        "https://southerntravel.onrender.com/api/Attractions",
+      );
+      if (!response.ok) throw new Error("網路回應不正常");
+      const data = await response.json();
+      items.value = data;
     } catch (error) {
       console.error("API 抓取失敗:", error);
     } finally {

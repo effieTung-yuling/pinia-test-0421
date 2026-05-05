@@ -45,8 +45,7 @@ import { useLoginStore } from "@/stores/loginData";
 const dataStore = useLoginStore();
 const router = useRouter(); // 取得路由實例
 
-const email = ref("");
-const password = ref("");
+const { email, password } = storeToRefs(dataStore);
 
 // 1. 定義 Loading 狀態
 const isLoading = ref(false);
