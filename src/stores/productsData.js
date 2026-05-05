@@ -1,5 +1,6 @@
 import { defineStore } from "pinia";
 import { ref } from "vue";
+import { fetchProducts as fetchProductsAPI } from "@/api/products";
 
 export const useProductsStore = defineStore("products", () => {
   const items = ref([]);
@@ -8,12 +9,8 @@ export const useProductsStore = defineStore("products", () => {
   async function fetchProducts() {
     isLoading.value = true; // 開始抓取時設為 true
     try {
-      const response = await fetch(
-        "https://southerntravel.onrender.com/api/Products",
-      );
-      if (!response.ok) throw new Error("網路回應不正常");
-      const data = await response.json();
-      items.value = data;
+      const response = await fetchProductsAPI();
+      items.value = response.data;
     } catch (error) {
       console.error("API 抓取失敗:", error);
     } finally {
