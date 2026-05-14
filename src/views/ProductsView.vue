@@ -1,11 +1,17 @@
 <template>
   <div>
     <h1 style="text-align: center">產品列表</h1>
+
+    <!-- 成功提示訊息 -->
+    <div v-if="successMessage" class="success-message">
+      {{ successMessage }}
+    </div>
+
     <div class="card-container">
       <div v-if="dataStore.isLoading" class="loading-wrap">
         <div class="loading-box">
           <div class="spinner"></div>
-          <p>正在載入景點資料...</p>
+          <p>正在載入產品資料...</p>
         </div>
       </div>
 
@@ -29,25 +35,22 @@
               {{ item.description }}
             </p>
 
-            <!-- ⭐ 預約資訊 -->
-            <div class="date-info">
-              <p v-if="currentDate <= item.endDate">
-                預約：{{ item.startDate }} ~ {{ item.endDate }}
-              </p>
-              <p v-else class="text-danger">預約時間已截止</p>
-
-              <p v-if="currentDate <= item.endDate">
-                出遊：{{ item.goStartDate }} ~ {{ item.goEndDate }}
-              </p>
-              <p v-else class="text-danger">已出遊完成</p>
+            <!-- 價格 -->
+            <div class="price-info">
+              <span class="price">${{ item.price || 0 }}</span>
             </div>
 
             <!-- 按鈕 -->
-            <button v-if="currentDate <= item.endDate" class="more-btn">
-              立即預約
-            </button>
-
-            <button v-else class="more-btn disabled" disabled>已截止</button>
+            <div class="button-group">
+              <button
+                class="more-btn add-cart"
+                @click="addToCart(item)"
+                :disabled="cartStore.isLoading"
+              >
+                {{ cartStore.isLoading ? "加入中..." : "加入購物車" }}
+              </button>
+              <button class="more-btn">查看詳情</button>
+            </div>
           </div>
         </div></template
       >
@@ -56,9 +59,13 @@
 </template>
 
 <script setup>
-import { onMounted } from "vue";
+import { onMounted, ref } from "vue";
 import { useProductsStore } from "@/stores/productsData";
+import { useCartStore } from "@/stores/cartData";
 const dataStore = useProductsStore();
+const cartStore = useCartStore();
+const currentDate = ref(new Date().toISOString().split("T")[0]);
+const successMessage = ref("");
 
 onMounted(() => {
   dataStore.fetchProducts();
@@ -68,9 +75,70 @@ const formatImageUrl = (url) => {
   if (!url) return "https://via.placeholder.com/400x300";
   return url;
 };
+
+const addToCart = async (product) => {
+  try {
+    // 兼容不同後端欄位命名
+    const productId =
+      product.id ??
+      product.productId ??
+      product.productID ??
+      product.ID ??
+      product.Id;
+
+    // 構建購物車 payload
+    const payload = {
+      productId: productId,
+      quantity: 1,
+    };
+
+    if (!productId) {
+      console.error("無法取得 productId，產品資料:", product);
+      alert("無法取得產品 ID，請檢查產品數據");
+      return;
+    }
+
+    await cartStore.addItemToCart(payload);
+
+    // 顯示成功消息
+    successMessage.value = `${product.title} 已加入購物車！`;
+    setTimeout(() => {
+      successMessage.value = "";
+    }, 3000);
+  } catch (error) {
+    console.error("加入購物車失敗 - 完整錯誤:", error);
+    console.error("錯誤響應:", error.response);
+    alert("加入購物車失敗，請確保已登入。詳細信息請查看瀏覽器控制台");
+  }
+};
 </script>
 
 <style scoped>
+/* 成功提示訊息 */
+.success-message {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background-color: #28a745;
+  color: white;
+  padding: 16px 24px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(400px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
 /* 核心容器：確保它是 Flex 佈局 */
 .card-container {
   display: flex;
@@ -159,6 +227,27 @@ const formatImageUrl = (url) => {
   flex-grow: 1; /* 推擠按鈕到底部 */
 }
 
+/* 價格信息 */
+.price-info {
+  margin-bottom: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.price {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #e74c3c;
+}
+
+/* 按鈕組 */
+.button-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: auto; /* 推到底部 */
+}
+
 .more-btn {
   width: 100%;
   padding: 12px;
@@ -168,19 +257,27 @@ const formatImageUrl = (url) => {
   border-radius: 8px;
   cursor: pointer;
   font-weight: 500;
-  margin-top: auto; /* 自動推到底部 */
+  transition: background-color 0.3s ease;
 }
 
-.more-btn:hover {
+.more-btn:hover:not(:disabled) {
   background-color: #2980b9;
 }
+
+.more-btn:disabled {
+  background-color: #95a5a6;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
 .add-cart {
-  background-color: #db3434;
-  margin-bottom: 4px;
+  background-color: #27ae60;
 }
-.add-cart:hover {
-  background-color: #d75858;
+
+.add-cart:hover:not(:disabled) {
+  background-color: #229954;
 }
+
 /* 旋轉動畫 */
 .spinner {
   width: 50px; /* 稍微加大一點，在大螢幕更明顯 */
